@@ -9,6 +9,7 @@
   --color-black: #000;
   --imput-color-dark:hsl(0, 0%, 17%);
   --background-body:#c2c2c2;
+  --background-error: #ff3b3b;
 }
 
 * {
@@ -110,6 +111,7 @@ body {
 .main__param {
   text-align: center;
   padding: 0.5rem 0;
+  width: 100%;
 }
 
 .main__param__p {
@@ -127,6 +129,13 @@ body {
   font-weight: bolder;
   text-align: center;
   color: var(--imput-color-dark);
+}
+
+.error__style {
+  background-color: var(--background-error);
+  font-size: 2rem;
+  font-weight: lighter;
+  border: 2px solid var(--color-black);
 }
 
 /*responsive styles*/
@@ -171,7 +180,7 @@ body {
   .main__param {
     border-right: 1px solid var(--color-black);
     text-align: left;
-    padding: 0;
+    padding: 0 0 0 1rem;
   }
 
   .main__param--noBorder {

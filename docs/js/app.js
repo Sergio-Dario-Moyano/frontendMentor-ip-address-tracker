@@ -9,18 +9,35 @@ const main__map = document.querySelector('#main__map');
 let template = document.createElement("article");
 template.classList.add('main__params');
 
-const handleBtn = () => {
-  const ipResult = searchInput.value;
-  console.log(ipResult);
+//Expresión regular que permite validar las Ip
+let regularExpresion = RegExp(
+  /^(?:(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(\.(?!$)|$)){4}$/
+)
 
-  fetch(`https://geo.ipify.org/api/v2/country?apiKey=at_2MQ1cqoPuUlr9eAQrsipI5VatSRSu&ipAddress=${ipResult}`)
+const handleValidateIp = () => {
+  if (regularExpresion.test(searchInput.value)) {
+    template.innerHTML = ''
+    template.classList.remove('error__style')
+    handleApi(searchInput.value)
+  } else {
+    handleError()
+    searchInput.focus()
+    return;
+  }
+}
+
+const handleError = () => {
+  template.classList.add('main__params', 'error__style');
+  template.innerHTML = "Error, ingresa una IP valida";
+  main__map.appendChild(template)
+}
+
+const handleApi = (ip) => {
+
+  fetch(`https://geo.ipify.org/api/v2/country?apiKey=at_2MQ1cqoPuUlr9eAQrsipI5VatSRSu&ipAddress=${ip}`)
 
     .then(response => response.json())
     .then(data => {
-      console.log(data.ip);
-      console.log(data.location.region);
-      console.log(data.location.timezone);
-      console.log(data.isp);
       template.innerHTML =
         `
           <div class="main__param">
@@ -41,8 +58,8 @@ const handleBtn = () => {
           </div>
             `
     });
-  main__map.append(template);
+  main__map.appendChild(template);
 }
 
 /*Handlers*/
-btnSearch.addEventListener("click", handleBtn)
+btnSearch.addEventListener("click", handleValidateIp)
