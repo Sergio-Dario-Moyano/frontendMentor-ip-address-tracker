@@ -38,6 +38,9 @@ body {
   background-size: cover;
   text-align: center;
   padding: 0 1rem 10rem;
+  position: static;
+  top: 0;
+  z-index: 1000;
 }
 
 .main__title {
@@ -84,12 +87,10 @@ body {
 }
 
 .main__map {
-  height: 100vh;
+  height: auto;
   padding: 0 1rem;
-  background-image: var(--background-img-bigMap);
-  background-repeat: no-repeat;
-  background-size: cover;
   position: relative;
+  z-index: 1001;
   display: flex;
   justify-content: center;
 }
@@ -133,9 +134,14 @@ body {
 
 .error__style {
   background-color: var(--background-error);
-  font-size: 2rem;
+  font-size: 1.2rem;
   font-weight: lighter;
   border: 2px solid var(--color-black);
+}
+
+#map {
+  height: 100vh;
+  z-index: 100;
 }
 
 /*responsive styles*/
@@ -167,10 +173,6 @@ body {
     font-weight: 400;
   }
 
-  .main__map {
-  height: calc(100vh - 300px);
-  }
-
   .main__params {
     flex-direction: row;
     padding: 3rem 0;
@@ -194,6 +196,10 @@ body {
   .main__param__span {
     text-align: left;
     padding: 0  1.5rem 0 0.8rem;
+  }
+
+  .error__style {
+    font-size: 2rem;
   }
  
 }

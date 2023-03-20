@@ -9,6 +9,14 @@ const main__map = document.querySelector('#main__map');
 let template = document.createElement("article");
 template.classList.add('main__params');
 
+//Agregando mapa funcional desde una librería externa.
+var map = L.map('map').setView([51.505, -0.09], 13);
+var marker = L.marker([51.5, -0.09]).addTo(map);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
 //Expresión regular que permite validar las Ip
 let regularExpresion = RegExp(
   /^(?:(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(\.(?!$)|$)){4}$/
@@ -28,7 +36,7 @@ const handleValidateIp = () => {
 
 const handleError = () => {
   template.classList.add('main__params', 'error__style');
-  template.innerHTML = "Error, ingresa una IP valida";
+  template.innerHTML = "Error, ingresa una IP válida";
   main__map.appendChild(template)
 }
 
@@ -58,6 +66,7 @@ const handleApi = (ip) => {
           </div>
             `
     });
+
   main__map.appendChild(template);
 }
 
