@@ -30,6 +30,8 @@ body {
 
 .main {
   min-width: 375px;
+  position: sticky;
+  top: 0;
 }
 
 .main__header {
@@ -177,6 +179,7 @@ body {
     flex-direction: row;
     padding: 3rem 0;
     top: -110px;
+    width: 50%;
   }
 
   .main__param {

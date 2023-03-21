@@ -1,32 +1,46 @@
+window.addEventListener("load", () => {
+  localIp()
+})
+
 // referencias HTML
-const btnSearch = document.querySelector('#btn__search');
-const searchInput = document.querySelector('#search__input');
+const btnSearch = document.querySelector('#btn__search'); //boton de cambio de coordenadas
+const searchInput = document.querySelector('#search__input'); //input de cambio de coordenadas
+// Elementos que muestran datos traidos de la API
 const ipAddress = document.querySelector('#ipAddress');
 const loc = document.querySelector('#location');
 const timeZone = document.querySelector('#timeZone');
 const isp = document.querySelector('#isp');
+//Donde se despliegan los datos obtenidos de la API
 const main__map = document.querySelector('#main__map');
+//Template que muestra dichos datos
 let template = document.createElement("article");
 template.classList.add('main__params');
 
-//Agregando mapa funcional desde una librería externa.
-var map = L.map('map').setView([51.505, -0.09], 13);
-var marker = L.marker([51.5, -0.09]).addTo(map);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
+let map; //Variable global para el manejo de mapas.
 
-//Expresión regular que permite validar las Ip
-let regularExpresion = RegExp(
-  /^(?:(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(\.(?!$)|$)){4}$/
-)
+const localIp = async () => {
+  const URL = 'https://api.ipify.org?format=json';
+  try {
+    const respuesta = await fetch(URL);
+    if (respuesta.ok) {
+      const jsonRespuesta = await respuesta.json();
+      handleValidateIp(jsonRespuesta.ip)
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 
-const handleValidateIp = () => {
-  if (regularExpresion.test(searchInput.value)) {
-    template.innerHTML = ''
-    template.classList.remove('error__style')
-    handleApi(searchInput.value)
+const handleValidateIp = (ip) => {
+  //Expresión regular que permite validar las Ip
+  let regularExpresion = RegExp(
+    /^(?:(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(\.(?!$)|$)){4}$/
+  )
+  console.log(ip);
+  if (regularExpresion.test(ip)) {
+    template.innerHTML = '';
+    template.classList.remove('error__style');
+    newRequest(ip)
   } else {
     handleError()
     searchInput.focus()
@@ -34,41 +48,68 @@ const handleValidateIp = () => {
   }
 }
 
+//Agregando mapa funcional desde una librería externa.
+const generateMap = (lat, long) => {
+  map = L.map('map').setView([lat, long], 13);
+  let marker = L.marker([lat, long]).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+}
+
+//Manejo de error personalizado (básico)
 const handleError = () => {
   template.classList.add('main__params', 'error__style');
   template.innerHTML = "Error, ingresa una IP válida";
   main__map.appendChild(template)
 }
 
-const handleApi = (ip) => {
+//captura de IP ingresada manualmente
+const sendNewIp = () => {
+  let res = document.querySelector('#search__input').value;
+  handleValidateIp(res)
+}
 
-  fetch(`https://geo.ipify.org/api/v2/country?apiKey=at_2MQ1cqoPuUlr9eAQrsipI5VatSRSu&ipAddress=${ip}`)
-
-    .then(response => response.json())
-    .then(data => {
+const templateConstructor = (data) => {
       template.innerHTML =
         `
-          <div class="main__param">
-            <p class="main__param__p">IP Address</p>
-            <span class="main__param__span" id="ipAddress">${data.ip}</span>
-          </div>
-          <div class="main__param">
-            <p class="main__param__p">Location</p>
-            <span class="main__param__span" id="location">${data.location.region}</span>
-          </div>
-          <div class="main__param">
-            <p class="main__param__p">Timezone</p>
-            <span class="main__param__span" id="timeZone">${data.location.timezone}</span>
-          </div>
-          <div class="main__param main__param--noBorder">
-            <p class="main__param__p">ISP</p>
-            <span class="main__param__span" id="isp">${data.isp}</span>
-          </div>
-            `
-    });
-
+      <div class="main__param">
+      <p class="main__param__p">IP Address</p>
+      <span class="main__param__span" id="ipAddress">${data.ip}</span>
+      </div>
+      <div class="main__param">
+      <p class="main__param__p">Location</p>
+      <span class="main__param__span" id="location">${data.location.city}, ${data.location.region}</span>
+      </div>
+      <div class="main__param">
+      <p class="main__param__p">Timezone</p>
+      <span class="main__param__span" id="timeZone">${data.location.timezone}</span>
+      </div>
+      <div class="main__param main__param--noBorder">
+      <p class="main__param__p">ISP</p>
+      <span class="main__param__span" id="isp">${data.isp}</span>
+      </div>
+      `
+      generateMap(data.location.lat, data.location.lng);
   main__map.appendChild(template);
 }
 
-/*Handlers*/
-btnSearch.addEventListener("click", handleValidateIp)
+const newRequest = async(ip) => {
+  const URL = 'https://geo.ipify.org/api/v2/country,city,vpn?apiKey=at_2MQ1cqoPuUlr9eAQrsipI5VatSRSu&ipAddress='
+  if (map != undefined) {
+    map = map.remove()
+  }
+  try {
+    const response = await fetch(`${URL}${ip}`);
+    if(response.ok) {
+      const respuesta = await response.json()
+      templateConstructor(respuesta);
+    }
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+// /*Handlers*/
+document.getElementById('btn__search').addEventListener("click", sendNewIp)
