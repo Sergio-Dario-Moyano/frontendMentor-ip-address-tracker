@@ -36,7 +36,7 @@ const handleValidateIp = (ip) => {
   let regularExpresion = RegExp(
     /^(?:(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])(\.(?!$)|$)){4}$/
   )
-  console.log(ip);
+
   if (regularExpresion.test(ip)) {
     template.innerHTML = '';
     template.classList.remove('error__style');
@@ -80,28 +80,31 @@ const templateConstructor = (data) => {
       </div>
       <div class="main__param">
       <p class="main__param__p">Location</p>
-      <span class="main__param__span" id="location">${data.location.city}, ${data.location.region}</span>
+      <span class="main__param__span" id="location">${data.city || "no data to show"}, ${data.country_name || "no data to show"}</span>
       </div>
       <div class="main__param">
       <p class="main__param__p">Timezone</p>
-      <span class="main__param__span" id="timeZone">${data.location.timezone}</span>
+      <span class="main__param__span" id="timeZone">${data.time_zone.offset || "no data to show"}</span>
       </div>
       <div class="main__param main__param--noBorder">
       <p class="main__param__p">ISP</p>
-      <span class="main__param__span" id="isp">${data.isp}</span>
+      <span class="main__param__span" id="isp">${data.asn.name || "no data to show"}</span>
       </div>
       `
-      generateMap(data.location.lat, data.location.lng);
+      generateMap(data.latitude, data.longitude);
   main__map.appendChild(template);
 }
 
 const newRequest = async(ip) => {
-  const URL = 'https://geo.ipify.org/api/v2/country,city,vpn?apiKey=at_2MQ1cqoPuUlr9eAQrsipI5VatSRSu&ipAddress='
+  const apiKey = 'e355c25ae5392fd7693c532e77917a23c810f807831197b24003ccd8';
+  const URL = `https://api.ipdata.co/${ip}?api-key=${apiKey}`;
+
   if (map != undefined) {
     map = map.remove()
   }
+
   try {
-    const response = await fetch(`${URL}${ip}`);
+    const response = await fetch(URL);
     if(response.ok) {
       const respuesta = await response.json()
       templateConstructor(respuesta);
